@@ -4,6 +4,7 @@
   "municipio": "Ciudad Valles",
   "estado": "San Luis Potosí",
   "colonias": [
+    "no aparece mi colonia",
     "12 de Julio",
     "18 de Marzo",
     "19 de Enero (Las Brisas)",
@@ -261,7 +262,6 @@
     "Vista Hermosa",
     "Zona Centro",
     "Ejido 21",
-    "El Carmen",
-   "otro"
+    "El Carmen"
   ]
 }
