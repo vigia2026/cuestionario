@@ -2,7 +2,7 @@ import{db,auth}from"./firebase.js";import{OP,slug,incs,pct}from"./opciones.js";
 import{signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import{collection,getDocs,deleteDoc,doc,query,orderBy,limit,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const $=id=>document.getElementById(id);let all=[];
-$("lf").onsubmit=async e=>{e.preventDefault();$("le").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value,$("pw").value)}catch(e){$("le").textContent=e.code}
+$("lf").onsubmit=async e=>{e.preventDefault();$("le").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value,$("pw").value)}catch(err){$("le").textContent=err.code}};
 $("out").onclick=()=>signOut(auth);
 onAuthStateChanged(auth,u=>{$("login").style.display=u?"none":"block";$("panel").style.display=u?"block":"none";if(u)load()});
 async function load(){try{$("pe").textContent="";const s=await getDocs(query(collection(db,"encuestas"),orderBy("fechaRegistro","desc"),limit(3000)));
@@ -20,7 +20,6 @@ $("tb").onclick=async e=>{const id=e.target.dataset.id;if(!id||!confirm("¿Elimi
 $("csv").onclick=()=>{const k=["colonia","pasaCamion","frecuencia","tiempoSinPasar","horario","satisfaccion","acumulacionBasura","problemaPrincipal","mejoras","comentario"];
 const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;const t=[[...k,"fecha"].join(",")].concat(filt().map(r=>[...k.map(x=>q(r[x])),q(r.f?r.f.toISOString():"")].join(","))).join("\n");
 const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+t],{type:"text/csv;charset=utf-8"}));a.download="vigia_encuestas.csv";a.click()};
-// Reconstruye la colección resumen (usada por estadisticas.html) desde las encuestas vigentes
 $("rc").onclick=async()=>{if(!confirm("Se recalcularán las estadísticas públicas con todas las encuestas actuales."))return;$("rc").disabled=true;
 const g={};all.forEach(r=>{const s=slug(r.colonia);g[s]??={colonia:r.colonia};const o=incs(r,()=>1);for(const k in o)g[s][k]=(g[s][k]||0)+1});
 const old=await getDocs(collection(db,"resumen"));
