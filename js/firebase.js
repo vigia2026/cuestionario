@@ -3,7 +3,7 @@ import{getFirestore}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-fir
 import{getAuth}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig={
-  apiKey:"AIzaSyAZMi6epP-c61aTCpw9bdEpUS6IXEEjTgY",
+  apiKey:"AIzaSyAZMi6EpP-c61aTCpw9bdEpUS6IXEEjTgY",
   authDomain:"vigia-fdb4a.firebaseapp.com",
   projectId:"vigia-fdb4a",
   storageBucket:"vigia-fdb4a.firebasestorage.app",
