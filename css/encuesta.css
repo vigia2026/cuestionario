@@ -4,3 +4,7 @@
 .form input[type=text],.form textarea{width:100%;font:inherit;padding:14px;border:2px solid #dfe6e1;border-radius:12px}
 .nav{display:flex;gap:8px;justify-content:space-between;margin-top:16px}.err{color:var(--r);min-height:1.3em;font-weight:600}.res dt{font-weight:700;color:var(--g1)}.res dd{margin:0 0 8px}
 .ok{text-align:center;padding:30px}.warn{background:#fff6d9;border-left:4px solid var(--y);padding:10px 12px;border-radius:8px;font-size:.85rem}
+.cb{position:relative}.cb input{padding-right:50px}.cbt{position:absolute;right:4px;top:4px;height:calc(100% - 8px);width:44px;border:0;background:none;font-size:1.3rem;color:var(--g1)}
+.cl{position:absolute;z-index:5;left:0;right:0;top:100%;margin:4px 0 0;padding:0;list-style:none;max-height:240px;overflow-y:auto;background:#fff;border:2px solid var(--g2);border-radius:12px;box-shadow:0 8px 24px #0003}
+.cl li{padding:13px 14px;border-bottom:1px solid #eef2ef;cursor:pointer}.cl li.no{background:#fff6d9;font-weight:600;position:sticky;top:0}.cl li:hover{background:#e9f7ef}.cl .vac{color:#888;cursor:default}
+#ot{margin-top:10px}
