@@ -2,7 +2,7 @@ import{db,auth}from"./firebase.js";import{OP,slug,incs,pct}from"./opciones.js";
 import{signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import{collection,getDocs,deleteDoc,doc,query,orderBy,limit,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const $=id=>document.getElementById(id);let all=[];
-$("lf").onsubmit=async e=>{e.preventDefault();$("le").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value,$("pw").value)}catch{$("le").textContent="Credenciales incorrectas."}};
+$("lf").onsubmit=async e=>{e.preventDefault();$("le").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value,$("pw").value)}catch(e){$("le").textContent=e.code}
 $("out").onclick=()=>signOut(auth);
 onAuthStateChanged(auth,u=>{$("login").style.display=u?"none":"block";$("panel").style.display=u?"block":"none";if(u)load()});
 async function load(){try{$("pe").textContent="";const s=await getDocs(query(collection(db,"encuestas"),orderBy("fechaRegistro","desc"),limit(3000)));
