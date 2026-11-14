@@ -1,0 +1,2 @@
+.login{max-width:380px;margin:40px auto}.login input,.f input{width:100%;font:inherit;padding:12px;margin:6px 0;border:2px solid #dfe6e1;border-radius:10px}
+.f{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.f input{flex:1;min-width:130px;width:auto}#panel{display:none}.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.85rem;min-width:760px}th,td{padding:8px;border-bottom:1px solid #e3e8e5;text-align:left;vertical-align:top}th{background:var(--gr)}
