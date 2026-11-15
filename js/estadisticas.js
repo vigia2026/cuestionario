@@ -14,9 +14,8 @@ const P=sum(L,"p","pasa");$("k1").textContent=tot;$("k2").textContent=L.length;
 chart("c1","doughnut",OP.pasa,P,["#22a05a","#d64545","#f5b81c"]);
 const top=L.filter(d=>d.p1).sort((a,b)=>b.p1-a.p1).slice(0,10);
 chart("c2","bar",top.map(d=>d.colonia),top.map(d=>d.p1),"#d64545",true);
-const irr=L.filter(d=>(d.p2||0)+(d.f6||0)).sort((a,b)=>((b.p2||0)+(b.f6||0))-((a.p2||0)+(a.f6||0))).slice(0,10);
-ch.c6?.destroy();
-ch.c6=new Chart($("c6"),{type:"bar",data:{labels:irr.map(d=>d.colonia),datasets:[{label:"Pasa algunas veces",data:irr.map(d=>d.p2||0),backgroundColor:"#f5b81c"},{label:"Sin frecuencia establecida",data:irr.map(d=>d.f6||0),backgroundColor:"#8a948e"}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{position:"bottom"}},scales:{x:{stacked:true,beginAtZero:true,ticks:{precision:0}},y:{stacked:true}}}});
+const alg=L.filter(d=>d.p2).sort((a,b)=>b.p2-a.p2).slice(0,10);
+chart("c6","bar",alg.map(d=>d.colonia),alg.map(d=>d.p2),"#f5b81c",true);
 chart("c3","bar",OP.frec,sum(L,"f","frec"),"#22a05a");chart("c4","doughnut",OP.sat,sum(L,"s","sat"),["#22a05a","#5bc08a","#f5b81c","#d64545"]);chart("c5","bar",OP.tiempo,sum(L,"t","tiempo"),"#14532d");
 const mk=(c,d)=>({c,n:d.total||0,si:d.p0||0,no:d.p1||0,al:d.p2||0,d});
 rows=cat.map(c=>mk(c,T[c]||{}));L.forEach(d=>{if(!cat.includes(d.colonia))rows.push(mk(d.colonia,d))});table()}
@@ -27,3 +26,12 @@ $("tb").onclick=e=>{const tr=e.target.closest("tr.cl");if(!tr)return;const r=row
 const blk=(t,k,p)=>`<h4>${t}</h4>`+OP[k].map((o,i)=>`<div>${o}: <b>${d[p+i]||0}</b></div>`).join("");
 $("dt").innerHTML=`<h3>${r.c}</h3><p>${r.n} encuestas. ${r.n<MIN?"Menos de "+MIN+": aún no se clasifica.":""}</p>`+(r.n?blk("Frecuencia","frec","f")+blk("Tiempo sin servicio","tiempo","t")+blk("Satisfacción","sat","s")+blk("Acumulación de basura","acum","a")+blk("Principal problema","prob","r"):"")+'<form method="dialog"><button class="btn">Cerrar</button></form>';$("dg").showModal()};
 ["q","f"].forEach(i=>$(i).addEventListener("input",table));let on=0;onAuthStateChanged(auth,u=>{if(!u)location.replace("admin.html");else if(!on){on=1;init()}});
+
+const xl=$("xl");if(xl)xl.onclick=()=>{if(typeof XLSX==="undefined")return alert("No se pudo cargar el generador de Excel. Revisa tu conexión.");
+const L=Object.values(T),tot=L.reduce((a,d)=>a+d.total,0),P=sum(L,"p","pasa"),wb=XLSX.utils.book_new();
+const add=(n,a)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(a),n);
+add("Resumen",[["Indicador","Valor"],["Encuestas recibidas",tot],["Colonias participantes",L.length],["% Sí pasa",pct(P[0],tot)],["% No pasa",pct(P[1],tot)],["% Pasa algunas veces",pct(P[2],tot)],["Fecha de exportación",new Date().toLocaleString("es-MX")]]);
+add("Por colonia",[["Colonia","Encuestas","Sí pasa","No pasa","Algunas veces","% Sí","% No","% Algunas veces","Estado"]].concat(rows.map(r=>[r.c,r.n,r.si,r.no,r.al,pct(r.si,r.n),pct(r.no,r.n),pct(r.al,r.n),est(r)[1]])));
+const dist=[["Pregunta","Opción","Respuestas"]];
+[["¿El camión pasa?","pasa","p"],["Frecuencia","frec","f"],["Tiempo sin pasar","tiempo","t"],["Horario","horario","h"],["Satisfacción","sat","s"],["Acumulación de basura","acum","a"],["Principal problema","prob","r"]].forEach(([t,k,p])=>sum(L,p,k).forEach((v,i)=>dist.push([t,OP[k][i],v])));
+add("Distribuciones",dist);XLSX.writeFile(wb,"vigia_estadisticas.xlsx")};
