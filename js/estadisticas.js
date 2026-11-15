@@ -14,6 +14,9 @@ const P=sum(L,"p","pasa");$("k1").textContent=tot;$("k2").textContent=L.length;
 chart("c1","doughnut",OP.pasa,P,["#22a05a","#d64545","#f5b81c"]);
 const top=L.filter(d=>d.p1).sort((a,b)=>b.p1-a.p1).slice(0,10);
 chart("c2","bar",top.map(d=>d.colonia),top.map(d=>d.p1),"#d64545",true);
+const irr=L.filter(d=>(d.p2||0)+(d.f6||0)).sort((a,b)=>((b.p2||0)+(b.f6||0))-((a.p2||0)+(a.f6||0))).slice(0,10);
+ch.c6?.destroy();
+ch.c6=new Chart($("c6"),{type:"bar",data:{labels:irr.map(d=>d.colonia),datasets:[{label:"Pasa algunas veces",data:irr.map(d=>d.p2||0),backgroundColor:"#f5b81c"},{label:"Sin frecuencia establecida",data:irr.map(d=>d.f6||0),backgroundColor:"#8a948e"}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{position:"bottom"}},scales:{x:{stacked:true,beginAtZero:true,ticks:{precision:0}},y:{stacked:true}}}});
 chart("c3","bar",OP.frec,sum(L,"f","frec"),"#22a05a");chart("c4","doughnut",OP.sat,sum(L,"s","sat"),["#22a05a","#5bc08a","#f5b81c","#d64545"]);chart("c5","bar",OP.tiempo,sum(L,"t","tiempo"),"#14532d");
 const mk=(c,d)=>({c,n:d.total||0,si:d.p0||0,no:d.p1||0,al:d.p2||0,d});
 rows=cat.map(c=>mk(c,T[c]||{}));L.forEach(d=>{if(!cat.includes(d.colonia))rows.push(mk(d.colonia,d))});table()}
