@@ -27,11 +27,32 @@ const blk=(t,k,p)=>`<h4>${t}</h4>`+OP[k].map((o,i)=>`<div>${o}: <b>${d[p+i]||0}<
 $("dt").innerHTML=`<h3>${r.c}</h3><p>${r.n} encuestas. ${r.n<MIN?"Menos de "+MIN+": aún no se clasifica.":""}</p>`+(r.n?blk("Frecuencia","frec","f")+blk("Tiempo sin servicio","tiempo","t")+blk("Satisfacción","sat","s")+blk("Acumulación de basura","acum","a")+blk("Principal problema","prob","r"):"")+'<form method="dialog"><button class="btn">Cerrar</button></form>';$("dg").showModal()};
 ["q","f"].forEach(i=>$(i).addEventListener("input",table));let on=0;onAuthStateChanged(auth,u=>{if(!u)location.replace("admin.html");else if(!on){on=1;init()}});
 
-const xl=$("xl");if(xl)xl.onclick=()=>{if(typeof XLSX==="undefined")return alert("No se pudo cargar el generador de Excel. Revisa tu conexión.");
-const L=Object.values(T),tot=L.reduce((a,d)=>a+d.total,0),P=sum(L,"p","pasa"),wb=XLSX.utils.book_new();
-const add=(n,a)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(a),n);
-add("Resumen",[["Indicador","Valor"],["Encuestas recibidas",tot],["Colonias participantes",L.length],["% Sí pasa",pct(P[0],tot)],["% No pasa",pct(P[1],tot)],["% Pasa algunas veces",pct(P[2],tot)],["Fecha de exportación",new Date().toLocaleString("es-MX")]]);
-add("Por colonia",[["Colonia","Encuestas","Sí pasa","No pasa","Algunas veces","% Sí","% No","% Algunas veces","Estado"]].concat(rows.map(r=>[r.c,r.n,r.si,r.no,r.al,pct(r.si,r.n),pct(r.no,r.n),pct(r.al,r.n),est(r)[1]])));
-const dist=[["Pregunta","Opción","Respuestas"]];
-[["¿El camión pasa?","pasa","p"],["Frecuencia","frec","f"],["Tiempo sin pasar","tiempo","t"],["Horario","horario","h"],["Satisfacción","sat","s"],["Acumulación de basura","acum","a"],["Principal problema","prob","r"]].forEach(([t,k,p])=>sum(L,p,k).forEach((v,i)=>dist.push([t,OP[k][i],v])));
-add("Distribuciones",dist);XLSX.writeFile(wb,"vigia_estadisticas.xlsx")};
+const xl=$("xl");if(xl)xl.onclick=async()=>{if(typeof ExcelJS==="undefined")return alert("No se pudo cargar el generador de Excel. Revisa tu conexión.");
+xl.disabled=true;
+try{
+const L=Object.values(T),tot=L.reduce((a,d)=>a+d.total,0),P=sum(L,"p","pasa"),G="FF14532D";
+const fill=c=>({type:"pattern",pattern:"solid",fgColor:{argb:c}});
+const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet("Observatorio",{views:[{showGridLines:false}]});
+ws.columns=[28,12,12,12,14,12,12,16,26,6].map(width=>({width}));
+ws.mergeCells("A1:J1");const t=ws.getCell("A1");t.value="OBSERVATORIO CIUDADANO VIGÍA · Ciudad Valles, S.L.P.";t.font={bold:true,size:16,color:{argb:"FFFFFFFF"}};t.fill=fill(G);t.alignment={vertical:"middle",horizontal:"center"};ws.getRow(1).height=34;
+ws.mergeCells("A2:J2");ws.getCell("A2").value="Exportado el "+new Date().toLocaleString("es-MX")+" · Basado en "+tot+" encuestas ciudadanas";ws.getCell("A2").font={italic:true,color:{argb:"FF555555"}};
+[["Encuestas recibidas",tot],["Colonias participantes",L.length],["Sí pasa",pct(P[0],tot)+"%"],["No pasa",pct(P[1],tot)+"%"],["Pasa algunas veces",pct(P[2],tot)+"%"]].forEach(([l,v],i)=>{const c=i*2+1;ws.mergeCells(4,c,4,c+1);ws.mergeCells(5,c,5,c+1);
+const a=ws.getCell(4,c),b=ws.getCell(5,c);a.value=v;a.font={bold:true,size:20,color:{argb:G}};b.value=l;b.font={size:10};
+[a,b].forEach(x=>{x.fill=fill("FFF1F4F2");x.alignment={horizontal:"center",vertical:"middle"}})});
+ws.getRow(4).height=34;
+[["c1",1,6,"¿El camión pasa?"],["c2",6,6,"Colonias con más reportes: No pasa"],["c6",1,23,"Colonias con más reportes: Pasa algunas veces"],["c3",6,23,"Frecuencia del servicio"],["c4",1,40,"Satisfacción"],["c5",6,40,"Tiempo sin recibir el servicio"]].forEach(([id,c,r,tt])=>{
+const h=ws.getCell(r,c);h.value=tt;h.font={bold:true,size:12,color:{argb:G}};
+if(!ch[id])return;const img=wb.addImage({base64:ch[id].toBase64Image("image/png",1),extension:"png"});ws.addImage(img,{tl:{col:c-1,row:r},ext:{width:480,height:300}})});
+const r0=57;ws.getCell(r0,1).value="Situación del servicio por colonia";ws.getCell(r0,1).font={bold:true,size:14,color:{argb:G}};
+const hr=ws.getRow(r0+1);["Colonia","Encuestas","Sí pasa","No pasa","Algunas veces","% Sí","% No","% Algunas veces","Estado"].forEach((h,i)=>{const c=hr.getCell(i+1);c.value=h;c.font={bold:true,color:{argb:"FFFFFFFF"}};c.fill=fill(G)});
+const CL={verde:"FF22A05A",amarillo:"FFF5B81C",rojo:"FFD64545",gris:"FF8A948E"};
+rows.slice().sort((a,b)=>pct(b.no,b.n)-pct(a.no,a.n)||b.n-a.n).forEach((x,k)=>{const rw=ws.getRow(r0+2+k),[cl,tx]=est(x);
+[x.c,x.n,x.si,x.no,x.al,pct(x.si,x.n)/100,pct(x.no,x.n)/100,pct(x.al,x.n)/100,tx].forEach((v,i)=>{rw.getCell(i+1).value=v});
+[6,7,8].forEach(i=>{rw.getCell(i).numFmt="0.0%"});
+const e=rw.getCell(9);e.fill=fill(CL[cl]);e.font={bold:true,color:{argb:cl==="amarillo"?"FF3A2D00":"FFFFFFFF"}}});
+const w2=wb.addWorksheet("Distribuciones");w2.columns=[{width:30},{width:42},{width:14}];
+const h2=w2.addRow(["Pregunta","Opción","Respuestas"]);h2.font={bold:true};
+[["¿El camión pasa?","pasa","p"],["Frecuencia","frec","f"],["Tiempo sin pasar","tiempo","t"],["Horario","horario","h"],["Satisfacción","sat","s"],["Acumulación de basura","acum","a"],["Principal problema","prob","r"]].forEach(([q,k,p])=>sum(L,p,k).forEach((v,i)=>w2.addRow([q,OP[k][i],v])));
+const buf=await wb.xlsx.writeBuffer();const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));a.download="vigia_estadisticas.xlsx";a.click();
+}catch(e){alert("No se pudo generar el Excel.")}
+xl.disabled=false};
